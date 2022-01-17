@@ -2,7 +2,7 @@
 address = ":8091"
 
 [API]
-tg_bot_token = "5024063266:AAF7X85OHvufdp46WTg1recjoYNtcCFAyo8"
+tg_bot_token = "5072079628:AAGKVoqAvcf-MorApAOjijIFzgorcOayTJk"
 
 [database]
 address = "127.0.0.1"

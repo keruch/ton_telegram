@@ -7,9 +7,9 @@ import (
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/keruch/the_open_art_ton_bot/internal/domain"
-	repo "github.com/keruch/the_open_art_ton_bot/internal/repository"
-	log "github.com/keruch/the_open_art_ton_bot/pkg/logger"
+	"github.com/keruch/ton_masks_bot/internal/domain"
+	repo "github.com/keruch/ton_masks_bot/internal/repository"
+	log "github.com/keruch/ton_masks_bot/pkg/logger"
 )
 
 type repository interface {
@@ -37,20 +37,22 @@ const (
 	startCommand  = "start"
 	pointsCommand = "points"
 
-	StartMessage             = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\nПринять участие очень просто - выполняйте задания и получайте баллы, которые увеличивают шансы выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in .\n\n" + SubscribeToJoinMessage
-	SubscribeToJoinMessage   = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса"
-	SubscribedToAllMessage   = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределены 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждоую его подписку вы получите по 50 баллов (максимум 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
+	StartMessage             = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in.\n\n" + SubscribeToJoinMessage
+	SubscribeToJoinMessage   = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса."
+	SubscribedToAllMessage   = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределен 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
 	AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
 	SubscribedMessage        = "Вы подписались на канал @%s."
 	UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
 	MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
 
 	FriendSubscribedFormatString      = "Ваш друг @%s подписался на канал @%s."
-	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 100 баллов :("
+	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
 	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы полуили 100 баллов!"
 
 	TheOpenArtChannelTag ChannelName = "@theopenart"
 	TheOpenArtChannel    ChannelName = "theopenart"
+	KingyruChannelTag    ChannelName = "@investkingyru"
+	KingyruChannel       ChannelName = "investkingyru"
 
 	TheOpenArtDBField ChannelDBFiled = "openart"
 	AdditionalDBField ChannelDBFiled = "additional"
@@ -62,11 +64,11 @@ const (
 var (
 	ChannelToDBMapping = map[ChannelName]ChannelDBFiled{
 		TheOpenArtChannel:    TheOpenArtDBField,
-		"nvbet":              AdditionalDBField,
+		KingyruChannel:       AdditionalDBField,
 		TheOpenArtChannelTag: TheOpenArtDBField,
-		"@nvbet":             AdditionalDBField,
+		KingyruChannelTag:    AdditionalDBField,
 	}
-	ToSubscribe = []ChannelName{TheOpenArtChannelTag, "@nvbet"}
+	ToSubscribe = []ChannelName{TheOpenArtChannelTag, KingyruChannelTag}
 )
 
 func NewTgBot(token string, repo repository, logger *log.Logger) (*TgBot, error) {
@@ -179,6 +181,17 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 				tg.logger.WithField("Method", "Send").Error(err)
 				return
 			}
+
+			if ID != 0 {
+				msg = tgbotapi.NewMessage(ID, "Something went wrong!")
+				msg.ParseMode = tgbotapi.ModeMarkdown
+				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
+
+				if _, err = tg.Send(msg); err != nil {
+					tg.logger.WithField("Method", "isSubscribed").Error(err)
+					return
+				}
+			}
 		}
 	default:
 		msg.Text = MissingCommandMessage
@@ -288,6 +301,26 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 		if err != nil {
 			return err
 		}
+
+		if action == unsubscribeAction {
+			msg := tgbotapi.NewMessage(invitedByID, "Something went wrong!")
+			msg.ParseMode = tgbotapi.ModeMarkdown
+			msg.Text = fmt.Sprintf(FriendUnsubscribedFormatString, username, string(channelName))
+
+			if _, err = tg.Send(msg); err != nil {
+				return err
+			}
+		}
+	}
+
+	if action == unsubscribeAction {
+		msg := tgbotapi.NewMessage(userID, "Something went wrong!")
+		msg.ParseMode = tgbotapi.ModeMarkdown
+		msg.Text = fmt.Sprintf(UnsubscribedMessage, string(channelName))
+
+		if _, err = tg.Send(msg); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -296,7 +329,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf("Ваша персональная ссылка для приглашения: \n\nhttps://t.me/testtheopenartbot?start=%d", ID)),
+			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf("Ваша персональная ссылка для приглашения: \n\nhttps://t.me/artkingyrubot?start=%d", ID)),
 			tgbotapi.NewInlineKeyboardButtonData("Получить баллы", pointsCommand),
 		),
 	)

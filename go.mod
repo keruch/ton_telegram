@@ -1,4 +1,4 @@
-module github.com/keruch/the_open_art_ton_bot
+module github.com/keruch/ton_masks_bot
 
 go 1.17
 
