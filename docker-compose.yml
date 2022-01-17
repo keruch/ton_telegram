@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  server:
+    build: ./
+    command: ./wait-for-postgres.sh db ./bin/main_bot
+    ports:
+      - "8091:8091"
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=qwerty
+
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./internal/repository/.database/postgres/data:/var/lib/postgressql/data
+      - ./config/dbInitialise:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_PASSWORD: "qwerty"
+      POSTGRES_DB: "the_open_art_users_test"
+      PGDATA: "/var/lib/postgressql/data"
+    ports:
+      - "5436:5432"
+    expose:
+      - "5432"

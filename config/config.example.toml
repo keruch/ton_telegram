@@ -1,0 +1,13 @@
+[server]
+address = ":8091"
+
+[API]
+tg_bot_token = ""
+
+[database]
+address = ""
+port = ""
+name = ""
+username = ""
+password = ""
+scheme = ""

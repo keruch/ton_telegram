@@ -1,0 +1,13 @@
+[server]
+address = ":8091"
+
+[API]
+tg_bot_token = "5079899667:AAGCgXf3kxQ3L5osRH-nZ0B97FWVY7q9_wA"
+
+[database]
+address = "127.0.0.1"
+port = ":5432"
+name = "the_open_art_test"
+username = "postgres"
+password = "n19171540"
+scheme = "postgres"
