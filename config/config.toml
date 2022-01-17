@@ -2,12 +2,12 @@
 address = ":8091"
 
 [API]
-tg_bot_token = "5079899667:AAGCgXf3kxQ3L5osRH-nZ0B97FWVY7q9_wA"
+tg_bot_token = "5024063266:AAF7X85OHvufdp46WTg1recjoYNtcCFAyo8"
 
 [database]
 address = "127.0.0.1"
 port = ":5432"
-name = "the_open_art_test"
+name = "ton_kenguru_test"
 username = "postgres"
 password = "n19171540"
 scheme = "postgres"

@@ -19,7 +19,7 @@ func main() {
 		logger.Panic(err)
 	}
 
-	repo, err := repository.NewPostgreSQLPool(config.GetDatabaseURL(), logger)
+	repo, err := repository.NewPostgresSQLPool(config.GetDatabaseURL(), logger)
 	if err != nil {
 		logger.Panicf("Setup repository failed: %s", err)
 	}

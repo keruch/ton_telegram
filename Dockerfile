@@ -16,6 +16,6 @@ RUN chmod +x wait-for-postgres.sh
 RUN go mod tidy -compat=1.17
 RUN go mod vendor
 
-RUN go build -o ./bin/main_bot ./cmd/the_open_art_ton_bot/main.go
+RUN go build -o ./bin/main_bot ./cmd/ton_masks_bot/main.go
 
 CMD ["./bin/main_bot"]

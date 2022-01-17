@@ -13,10 +13,12 @@ import (
 )
 
 type repository interface {
-	AddUser(ctx context.Context, ID int64, username string, invitedID int64, chatID int64) error
+	AddUser(ctx context.Context, ID int64, username string, invitedID int64) error
 	GetFieldForID(ctx context.Context, ID int64, field string) (interface{}, error)
 	UpdatePoints(ctx context.Context, ID int64, points int) error
 	UpdateSubscription(ctx context.Context, subscription string, ID int64, value bool) error
+	GetInvitedByID(ctx context.Context, ID int64) (int64, error)
+	GetUsername(ctx context.Context, ID int64) (string, error)
 }
 
 type TgBot struct {
@@ -27,6 +29,7 @@ type TgBot struct {
 
 type (
 	ChannelName        string
+	ChannelDBFiled     string
 	SubscriptionAction bool
 )
 
@@ -34,22 +37,36 @@ const (
 	startCommand  = "start"
 	pointsCommand = "points"
 
-	StartMessage             = "[The Open Art](https://t.me/theopenart) проводит розыгрыш 100 монет [TON](https://t.me/theopenart).\nПринять участие очень просто - выполняйте задания и получайте баллы, которые увеличивают шансы получить [TON](https://t.me/theopenart).\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart).\n\n" + SubscribeToJoinMessage
-	SubscribeToJoinMessage   = "Для участия подпишитесь на канал [The Open Art](https://t.me/theopenart). Важно быть подписанным до окончания конкурса!"
-	SubscribedMessage        = "✨ Поздравляем! Вы участвуете в розыгрыше.\n\n100 TON будут распределены 01 февраля 2022 года в 16:00. Шанс выиграть TON напрямую зависит от баллов: чем их больше, тем выше вероятность получить TON. Вы можете приглашать друзей: за каждого получите по 100 баллов, но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
+	StartMessage             = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\nПринять участие очень просто - выполняйте задания и получайте баллы, которые увеличивают шансы выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in .\n\n" + SubscribeToJoinMessage
+	SubscribeToJoinMessage   = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса"
+	SubscribedToAllMessage   = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределены 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждоую его подписку вы получите по 50 баллов (максимум 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
 	AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
-	UnsubscribedMessage      = "Вы отписались от канала [The Open Art](https://t.me/theopenart) и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
-	MissingCommandMessage    = "Куда-то ты не туда полез, дружок..."
+	SubscribedMessage        = "Вы подписались на канал @%s."
+	UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
+	MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
 
-	FriendSubscribedFormatString   = "Ваш друг @%s подписался на канал [The Open Art](https://t.me/theopenart) и теперь участвует в конкурсе. А вы получили 100 баллов!"
-	FriendUnsubscribedFormatString = "Ваш друг @%s отписался от канала [The Open Art](https://t.me/theopenart) и больше не участвует в конкурсе. Пришлось забрать ваши 100 баллов :("
+	FriendSubscribedFormatString      = "Ваш друг @%s подписался на канал @%s."
+	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 100 баллов :("
+	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы полуили 100 баллов!"
 
-	TheOpenArtChannel ChannelName = "@theopenart"
+	TheOpenArtChannelTag ChannelName = "@theopenart"
+	TheOpenArtChannel    ChannelName = "theopenart"
 
-	theOpenArtFDBField ChannelName = "openart"
+	TheOpenArtDBField ChannelDBFiled = "openart"
+	AdditionalDBField ChannelDBFiled = "additional"
 
 	subscribeAction   SubscriptionAction = true
 	unsubscribeAction SubscriptionAction = false
+)
+
+var (
+	ChannelToDBMapping = map[ChannelName]ChannelDBFiled{
+		TheOpenArtChannel:    TheOpenArtDBField,
+		"nvbet":              AdditionalDBField,
+		TheOpenArtChannelTag: TheOpenArtDBField,
+		"@nvbet":             AdditionalDBField,
+	}
+	ToSubscribe = []ChannelName{TheOpenArtChannelTag, "@nvbet"}
 )
 
 func NewTgBot(token string, repo repository, logger *log.Logger) (*TgBot, error) {
@@ -111,13 +128,13 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			ID = 0
 		}
 		if err == nil && ID != 0 {
-			invitedUser, err := tg.repo.GetFieldForID(ctx, ID, domain.UsernameField)
+			invitedUser, err := tg.repo.GetUsername(ctx, ID)
 			if err != nil {
 				tg.logger.WithField("Method", "GetFieldForID").Error(err)
 			}
 			msg.Text = fmt.Sprintf("Вы были приглашены другом @%v!\n\n%s", invitedUser, StartMessage)
 		}
-		if err = tg.repo.AddUser(ctx, userID, userName, ID, chatID); err != nil {
+		if err = tg.repo.AddUser(ctx, userID, userName, ID); err != nil {
 			if errors.Is(err, repo.ErrorAlreadyRegistered) {
 				tg.logger.WithField("Method", "AddUser").Info(err)
 				msg.Text = AlreadyRegisteredMessage
@@ -137,19 +154,31 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			return
 		}
 
-		ok, err := tg.isSubscribed(userID, TheOpenArtChannel)
-		if err != nil {
-			tg.logger.WithField("Method", "isSubscribed").Error(err)
-			return
-		}
-
-		if ok {
-			if err := tg.updateSubscription(ctx, userID, userName, theOpenArtFDBField, subscribeAction, 100); err != nil {
-				tg.logger.WithField("Method", "updateSubscription").Error(err)
+		subToAll := true
+		for _, sub := range ToSubscribe {
+			ok, err := tg.isSubscribed(userID, sub)
+			if err != nil {
+				tg.logger.WithField("Method", "isSubscribed").Error(err)
 				return
 			}
-		} else {
-			msg.Text = msg.Text + "\n\n" + SubscribeToJoinMessage
+
+			if ok {
+				if err := tg.updateSubscription(ctx, userID, userName, sub, subscribeAction, 50); err != nil {
+					tg.logger.WithField("Method", "updateSubscription").Error(err)
+					return
+				}
+			}
+
+			subToAll = subToAll && ok
+		}
+
+		if subToAll {
+			msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+			msg.Text = SubscribedToAllMessage
+			if _, err := tg.Send(msg); err != nil {
+				tg.logger.WithField("Method", "Send").Error(err)
+				return
+			}
 		}
 	default:
 		msg.Text = MissingCommandMessage
@@ -194,42 +223,63 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 
 func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) {
 	var (
-		userID   = update.ChatMember.From.ID
-		userName = update.ChatMember.From.UserName
+		userID      = update.ChatMember.From.ID
+		userName    = update.ChatMember.From.UserName
+		channelName = ChannelName(update.ChatMember.Chat.UserName)
 	)
 
 	if update.ChatMember.NewChatMember.Status == "left" {
-		if err := tg.updateSubscription(ctx, userID, userName, theOpenArtFDBField, unsubscribeAction, -100); err != nil {
+		if err := tg.updateSubscription(ctx, userID, userName, channelName, unsubscribeAction, -50); err != nil {
 			tg.logger.WithField("Method", "updateSubscription").WithField("Action", "Subscribe").Error(err)
 			return
 		}
 	} else if update.ChatMember.NewChatMember.Status == "member" {
-		if err := tg.updateSubscription(ctx, userID, userName, theOpenArtFDBField, subscribeAction, 100); err != nil {
+		if err := tg.updateSubscription(ctx, userID, userName, channelName, subscribeAction, 50); err != nil {
 			tg.logger.WithField("Method", "updateSubscription").WithField("Action", "Unsubscribe").Error(err)
 			return
+		}
+		ok, err := tg.isSubscribed(userID, ToSubscribe...)
+		if err != nil {
+			tg.logger.WithField("Method", "isSubscribed").Error(err)
+			return
+		}
+		if ok {
+			msg := tgbotapi.NewMessage(userID, "Something went wrong!")
+			msg.ParseMode = tgbotapi.ModeMarkdown
+			msg.Text = SubscribedToAllMessage
+
+			if _, err = tg.Send(msg); err != nil {
+				tg.logger.WithField("Method", "isSubscribed").Error(err)
+				return
+			}
+
+			invitedByID, err := tg.repo.GetInvitedByID(ctx, userID)
+			if err != nil {
+				tg.logger.WithField("Method", "isSubscribed").Error(err)
+				return
+			}
+
+			if invitedByID != 0 {
+				msg = tgbotapi.NewMessage(invitedByID, "Something went wrong!")
+				msg.ParseMode = tgbotapi.ModeMarkdown
+				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
+
+				if _, err = tg.Send(msg); err != nil {
+					tg.logger.WithField("Method", "isSubscribed").Error(err)
+					return
+				}
+			}
 		}
 	}
 }
 
-func (tg *TgBot) getInvitedByUser(ctx context.Context, userID int64) (int64, error) {
-	invitedBy, err := tg.repo.GetFieldForID(ctx, userID, domain.InvitedByField)
-	if err != nil {
-		return 0, err
-	}
-	invitedByID, ok := invitedBy.(int64)
-	if !ok {
-		return 0, err
-	}
-
-	return invitedByID, nil
-}
-
-func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username string, channel ChannelName, action SubscriptionAction, points int) error {
+func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username string, channelName ChannelName, action SubscriptionAction, points int) error {
+	channel := ChannelToDBMapping[channelName]
 	if err := tg.repo.UpdateSubscription(ctx, string(channel), userID, bool(action)); err != nil {
 		return err
 	}
 
-	invitedByID, err := tg.getInvitedByUser(ctx, userID)
+	invitedByID, err := tg.repo.GetInvitedByID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -238,33 +288,6 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 		if err != nil {
 			return err
 		}
-
-		msg := tgbotapi.NewMessage(invitedByID, "Something went wrong!")
-		msg.ParseMode = tgbotapi.ModeMarkdown
-
-		if action == subscribeAction {
-			msg.Text = fmt.Sprintf(FriendSubscribedFormatString, username)
-		} else {
-			msg.Text = fmt.Sprintf(FriendUnsubscribedFormatString, username)
-		}
-
-		if _, err = tg.Send(msg); err != nil {
-			return err
-		}
-	}
-
-	msg := tgbotapi.NewMessage(userID, "Something went wrong!")
-	msg.ParseMode = tgbotapi.ModeMarkdown
-
-	if action == subscribeAction {
-		msg.Text = fmt.Sprintf(SubscribedMessage)
-		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
-	} else {
-		msg.Text = fmt.Sprintf(UnsubscribedMessage)
-	}
-
-	if _, err = tg.Send(msg); err != nil {
-		return err
 	}
 
 	return nil
@@ -273,21 +296,26 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf("Ваша персональная ссылка для приглашения: \n\nhttps://t.me/theopenartbot?start=%d", ID)),
-			//tgbotapi.NewInlineKeyboardButtonURL("Subscribe", "https://t.me/theopenart"),
+			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf("Ваша персональная ссылка для приглашения: \n\nhttps://t.me/testtheopenartbot?start=%d", ID)),
 			tgbotapi.NewInlineKeyboardButtonData("Получить баллы", pointsCommand),
 		),
 	)
 }
 
-func (tg *TgBot) isSubscribed(userID int64, channel ChannelName) (bool, error) {
-	config := tgbotapi.ChatConfigWithUser{
-		SuperGroupUsername: string(channel),
-		UserID:             userID,
+func (tg *TgBot) isSubscribed(userID int64, channels ...ChannelName) (bool, error) {
+	result := true
+	for _, channel := range channels {
+		config := tgbotapi.ChatConfigWithUser{
+			SuperGroupUsername: string(channel),
+			UserID:             userID,
+		}
+		member, err := tg.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: config})
+		if err != nil {
+			return false, err
+		}
+
+		result = (member.Status == "member" || member.Status == "creator" || member.Status == "administrator") && result
 	}
-	member, err := tg.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: config})
-	if err != nil {
-		return false, err
-	}
-	return member.Status == "member" || member.Status == "creator" || member.Status == "administrator", nil
+
+	return result, nil
 }
