@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/keruch/ton_masks_bot/config"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -27,25 +28,17 @@ type TgBot struct {
 }
 
 type (
-	ChannelName        string
-	ChannelDBFiled     string
+	ChannelName        = string
+	ChannelDBFiled     = string
 	SubscriptionAction bool
 )
 
-// kingyru
-const (
-	StartMessage           = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in.\n\n" + SubscribeToJoinMessage
-	SubscribeToJoinMessage = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса."
-	SubscribedToAllMessage = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределен 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
-
-	BotTag = "artkingyrubot"
-)
-
-// Masks
-//const (
-//	StartMessage           = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in.\n\n" + SubscribeToJoinMessage
-//	SubscribeToJoinMessage = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса."
-//	SubscribedToAllMessage = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределен 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
+//var (
+//	StartMessage           = config.GetStartMessage() + SubscribeToJoinMessage
+//	SubscribeToJoinMessage = config.GetSubscribeToJoinMessage()
+//	SubscribedToAllMessage = config.GetSubscribedToAllMessage()
+//
+//	BotTag = config.GetTelegramBotTag()
 //)
 
 const (
@@ -59,7 +52,7 @@ const (
 
 	FriendSubscribedFormatString      = "Ваш друг @%s подписался на канал @%s."
 	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
-	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы полуили 100 баллов!"
+	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы получили 100 баллов!"
 
 	PersonalLinkFormatString = "Ваша персональная ссылка для приглашения: \n\nhttps://t.me/%s?start=%d"
 
@@ -86,7 +79,7 @@ var (
 		KingyruChannelTag:    AdditionalDBField,
 		MasksChannelTag:      AdditionalDBField,
 	}
-	ToSubscribe = []ChannelName{TheOpenArtChannelTag, KingyruChannelTag}
+	ToSubscribe = config.GetRequiredChannels()
 )
 
 func NewTgBot(token string, repo repository, logger *log.Logger) (*TgBot, error) {
@@ -141,7 +134,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 
 	switch update.Message.Command() {
 	case startCommand:
-		msg.Text = StartMessage
+		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
 		ID, err := strconv.ParseInt(update.Message.CommandArguments(), 10, 64)
 		if ID == userID {
 			ID = 0
@@ -152,7 +145,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			if err != nil {
 				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetFieldForID").Error(err)
 			}
-			msg.Text = fmt.Sprintf("Вы были приглашены другом @%v!\n\n%s", invitedUser, StartMessage)
+			msg.Text = fmt.Sprintf("Вы были приглашены другом @%v!\n\n%s", invitedUser, config.GetStartMessage()+config.GetSubscribeToJoinMessage())
 		}
 		if err = tg.repo.AddUser(ctx, userID, userName, ID); err != nil {
 			if errors.Is(err, repo.ErrorAlreadyRegistered) {
@@ -194,7 +187,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 
 		if subToAll {
 			msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
-			msg.Text = SubscribedToAllMessage
+			msg.Text = config.GetSubscribedToAllMessage()
 			if _, err := tg.Send(msg); err != nil {
 				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").WithField("Message", "Subscribed to all message").Error(err)
 				return
@@ -280,7 +273,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 		if ok {
 			msg := tgbotapi.NewMessage(userID, "Something went wrong!")
 			msg.ParseMode = tgbotapi.ModeMarkdown
-			msg.Text = SubscribedToAllMessage
+			msg.Text = config.GetSubscribedToAllMessage()
 
 			if _, err = tg.Send(msg); err != nil {
 				tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
@@ -350,7 +343,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf(PersonalLinkFormatString, BotTag, ID)),
+			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), ID)),
 			tgbotapi.NewInlineKeyboardButtonData("Получить баллы", pointsCommand),
 		),
 	)

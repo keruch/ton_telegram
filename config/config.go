@@ -31,7 +31,27 @@ func GetDatabaseURL() string {
 }
 
 func GetTelegramBotToken() string {
-	return viper.GetString("API.tg_bot_token")
+	return viper.GetString("TelegramAPI.bot_token")
+}
+
+func GetTelegramBotTag() string {
+	return viper.GetString("TelegramAPI.bot_name")
+}
+
+func GetRequiredChannels() []string {
+	return viper.GetStringSlice("BotImplementation.required_subscriptions")
+}
+
+func GetStartMessage() string {
+	return viper.GetString("BotImplementation.start_message")
+}
+
+func GetSubscribeToJoinMessage() string {
+	return viper.GetString("BotImplementation.subscribe_to_join_message")
+}
+
+func GetSubscribedToAllMessage() string {
+	return viper.GetString("BotImplementation.subscribed_to_all_message")
 }
 
 func GetServerAddress() string {
