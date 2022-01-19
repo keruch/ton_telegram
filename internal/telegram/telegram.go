@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/keruch/ton_masks_bot/internal/domain"
 	repo "github.com/keruch/ton_masks_bot/internal/repository"
 	log "github.com/keruch/ton_masks_bot/pkg/logger"
 )
@@ -19,9 +18,8 @@ type repository interface {
 	UpdateSubscription(ctx context.Context, subscription string, ID int64, value bool) error
 	GetInvitedByID(ctx context.Context, ID int64) (int64, error)
 	GetUsername(ctx context.Context, ID int64) (string, error)
-	GetPointsByID(ctx context.Context, ID int64) (int, error)f
+	GetPointsByID(ctx context.Context, ID int64) (int, error)
 }
-
 type TgBot struct {
 	*tgbotapi.BotAPI
 	repo   repository
@@ -35,18 +33,20 @@ type (
 )
 
 // kingyru
-//const (
-//	StartMessage             = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in.\n\n" + SubscribeToJoinMessage
-//	SubscribeToJoinMessage   = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса."
-//	SubscribedToAllMessage   = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределен 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
-//)
-
-// Masks
 const (
 	StartMessage           = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in.\n\n" + SubscribeToJoinMessage
 	SubscribeToJoinMessage = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса."
 	SubscribedToAllMessage = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределен 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
+
+	BotTag = "artkingyrubot"
 )
+
+// Masks
+//const (
+//	StartMessage           = "[The Open Art](https://t.me/theopenart) совместно с [Investment kingyru](https://t.me/investkingyru) проводит розыгрыш уникальной [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) выпущенной эксклюзивно для интервью.\n\n💎 Больше информации о в официальном сообществе [The Open Art](https://t.me/theopenart), в официальном сообществе [Investment kingyru](https://t.me/investkingyru) и на официальном маркет-сайте ton.org.in.\n\n" + SubscribeToJoinMessage
+//	SubscribeToJoinMessage = "Для участия подпишитесь на каналы [The Open Art](https://t.me/theopenart) и [Investment kingyru](https://t.me/investkingyru). Важно быть подписанным до окончания конкурса."
+//	SubscribedToAllMessage = "✨ Поздравляем! Вы участвуете в розыгрыше эксклюзивного [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6).\n[NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) будет распределен 22 января 2022 года в 16:00. Шанс выиграть [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6) напрямую зависит от баллов: чем их больше, тем выше вероятность получить [NFT](https://ton.org.in/EQCMtTKLYj2588dWgBYvqx4H439pDGYf9jaJLPM-jP3rVRV6). Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
+//)
 
 const (
 	startCommand  = "start"
@@ -60,6 +60,8 @@ const (
 	FriendSubscribedFormatString      = "Ваш друг @%s подписался на канал @%s."
 	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
 	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы полуили 100 баллов!"
+
+	PersonalLinkFormatString = "Ваша персональная ссылка для приглашения: \n\nhttps://t.me/%s?start=%d"
 
 	TheOpenArtChannelTag ChannelName = "@theopenart"
 	TheOpenArtChannel    ChannelName = "theopenart"
@@ -166,7 +168,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "AddUser").Error(err)
 			return
 		}
-
+		tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Invited By", ID).Info("new user added to db")
 		if _, err := tg.Send(msg); err != nil {
 			tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
 			return
@@ -259,18 +261,20 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 	)
 
 	if update.ChatMember.NewChatMember.Status == "left" {
+		tg.logger.WithField("When", "Update status to left").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Unsubscribe").Info("user unsubscribed from channel")
 		if err := tg.updateSubscription(ctx, userID, userName, channelName, unsubscribeAction, -50); err != nil {
-			tg.logger.WithField("When", "Update member status to left").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Subscribe").Error(err)
+			tg.logger.WithField("When", "Update status to left").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Subscribe").Error(err)
 			return
 		}
 	} else if update.ChatMember.NewChatMember.Status == "member" {
+		tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Unsubscribe").Info("user subscribed to channel")
 		if err := tg.updateSubscription(ctx, userID, userName, channelName, subscribeAction, 50); err != nil {
-			tg.logger.WithField("When", "Update member status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Unsubscribe").Error(err)
+			tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Unsubscribe").Error(err)
 			return
 		}
 		ok, err := tg.isSubscribed(userID, ToSubscribe...)
 		if err != nil {
-			tg.logger.WithField("When", "Update member status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "isSubscribed").WithField("Channel", ToSubscribe).Error(err)
+			tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "isSubscribed").WithField("Channels to sub", ToSubscribe).Error(err)
 			return
 		}
 		if ok {
@@ -279,13 +283,13 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 			msg.Text = SubscribedToAllMessage
 
 			if _, err = tg.Send(msg); err != nil {
-				tg.logger.WithField("When", "Update member status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
+				tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
 				return
 			}
 
 			invitedByID, err := tg.repo.GetInvitedByID(ctx, userID)
 			if err != nil {
-				tg.logger.WithField("When", "Update member status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetInvitedByID").Error(err)
+				tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetInvitedByID").Error(err)
 				return
 			}
 
@@ -295,7 +299,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
 
 				if _, err = tg.Send(msg); err != nil {
-					tg.logger.WithField("When", "Update member status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
+					tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
 					return
 				}
 			}
@@ -346,7 +350,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf("Ваша персональная ссылка для приглашения: \n\nhttps://t.me/artkingyrubot?start=%d", ID)),
+			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf(PersonalLinkFormatString, BotTag, ID)),
 			tgbotapi.NewInlineKeyboardButtonData("Получить баллы", pointsCommand),
 		),
 	)

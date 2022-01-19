@@ -37,7 +37,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         ":8090",
+		Addr:         config.GetServerAddress(),
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
