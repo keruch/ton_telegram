@@ -45,6 +45,7 @@ values ('%v', '%v', '%v', '%v', '%v');`
 	updateSubscriptionTemplate = `update user_data set %s = '%v' where user_id = '%v'`
 	getFieldWithIDTemplate     = "select %s from user_data where user_id = '%v'"
 	getInvitedByIDTemplate     = "select invited_by from user_data where user_id = '%v'"
+	getPointsByIDTemplate      = "select points from user_data where user_id = '%v'"
 	getUsernameByID            = "select username from users where user_id = '%v'"
 )
 
@@ -84,7 +85,6 @@ func (p *PostgresSQLPool) isUserAlreadyRegistered(ctx context.Context, ID int64)
 }
 
 func (p *PostgresSQLPool) GetFieldForID(ctx context.Context, ID int64, field string) (interface{}, error) {
-	p.logger.Tracef("Get points with args %d", ID)
 	getCommand := fmt.Sprintf(getFieldWithIDTemplate, field, ID)
 	rows, err := p.pool.Query(ctx, getCommand)
 	if err != nil {
@@ -112,6 +112,28 @@ func (p *PostgresSQLPool) GetInvitedByID(ctx context.Context, ID int64) (int64, 
 		return 0, err
 	}
 	var value int64
+	for rows.Next() {
+		err = rows.Scan(&value)
+		if err != nil {
+			return 0, err
+		}
+		break
+	}
+	rows.Close()
+	if err = rows.Err(); err != nil {
+		return 0, err
+	}
+
+	return value, nil
+}
+
+func (p *PostgresSQLPool) GetPointsByID(ctx context.Context, ID int64) (int, error) {
+	getCommand := fmt.Sprintf(getPointsByIDTemplate, ID)
+	rows, err := p.pool.Query(ctx, getCommand)
+	if err != nil {
+		return 0, err
+	}
+	var value int
 	for rows.Next() {
 		err = rows.Scan(&value)
 		if err != nil {
