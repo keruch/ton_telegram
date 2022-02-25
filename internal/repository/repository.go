@@ -146,6 +146,10 @@ func (p *PostgresSQLPool) GetPointsByID(ctx context.Context, ID int64) (int, err
 		return 0, err
 	}
 
+	if value < 0 {
+		value = 0
+	}
+
 	return value, nil
 }
 
@@ -178,6 +182,34 @@ func (p *PostgresSQLPool) GetUsername(ctx context.Context, ID int64) (string, er
 	rows.Close()
 	if err = rows.Err(); err != nil {
 		return "", err
+	}
+
+	return value, nil
+}
+
+const getRating = `SELECT username, points FROM users JOIN user_data ud on users.user_id = ud.user_id
+WHERE openart = TRUE AND additional = TRUE
+ORDER BY points DESC
+LIMIT $1`
+
+func (p *PostgresSQLPool) GetRating(ctx context.Context, limit int) ([]string, error) {
+	rows, err := p.pool.Query(ctx, getRating, limit)
+	if err != nil {
+		return nil, err
+	}
+	var value []string
+	for rows.Next() {
+		var row string
+		var points int
+		err = rows.Scan(&row, &points)
+		if err != nil {
+			return nil, err
+		}
+		value = append(value, fmt.Sprintf("%15s %7d", row, points))
+	}
+	rows.Close()
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return value, nil

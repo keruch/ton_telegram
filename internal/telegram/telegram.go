@@ -20,6 +20,7 @@ type repository interface {
 	GetInvitedByID(ctx context.Context, ID int64) (int64, error)
 	GetUsername(ctx context.Context, ID int64) (string, error)
 	GetPointsByID(ctx context.Context, ID int64) (int, error)
+	GetRating(ctx context.Context, limit int) ([]string, error)
 }
 type TgBot struct {
 	*tgbotapi.BotAPI
@@ -36,6 +37,8 @@ type (
 const (
 	startCommand  = "start"
 	pointsCommand = "points"
+	ratingCommand = "rating"
+	infoCommand   = "info"
 
 	AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
 	UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
@@ -224,6 +227,18 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 		}
 		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
 		msg.Text = fmt.Sprintf("У вас %v баллов", points)
+	case ratingCommand:
+		tg.logger.WithField("Command", ratingCommand).WithField("User", userName).WithField("User ID", userID).Info()
+		rating, err := tg.repo.GetRating(ctx, 10)
+		if err != nil {
+			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetRating").Error(err)
+		}
+		ratingString := createRating(rating)
+		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+		msg.Text = ratingString
+	case infoCommand:
+		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
 	}
 
 	if _, err := tg.Send(msg); err != nil {
@@ -329,7 +344,9 @@ func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), ID)),
-			tgbotapi.NewInlineKeyboardButtonData("Получить баллы", pointsCommand),
+			tgbotapi.NewInlineKeyboardButtonData("Баллы", pointsCommand),
+			tgbotapi.NewInlineKeyboardButtonData("Рейтинг", ratingCommand),
+			tgbotapi.NewInlineKeyboardButtonData("Информация", infoCommand),
 		),
 	)
 }
@@ -350,4 +367,14 @@ func (tg *TgBot) isSubscribed(userID int64, channels ...ChannelName) (bool, erro
 	}
 
 	return result, nil
+}
+
+const line = "%d: %s"
+
+func createRating(rows []string) string {
+	var result string
+	for idx, row := range rows {
+		result = result + fmt.Sprintf(line, idx+1, row) + "\n"
+	}
+	return result
 }

@@ -38,7 +38,7 @@ env-restart:
 env-stop:
 	./docker/env.sh stop
 
-setup-env: update install-migrator migrate-up env-start
+setup-env: install-migrator update migrate-up env-start
 
 $(SERVICES_RUN_TARGETS_LIST): run-%:
 	./docker/env.sh start
