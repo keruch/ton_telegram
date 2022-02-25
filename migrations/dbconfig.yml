@@ -1,47 +1,5 @@
 local:
   dialect: postgres
-  datasource: postgres://user:passwd@localhost:5432/dealer_miof?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-qa:
-  dialect: postgres
-  datasource: postgres://dealer_miof_qa1:${POSTGRES_PASSWORD}@dealer-miof-qa1-invest.ds.pg-test.tcsbank.ru:5432/dealer_miof_qa1?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-qa2:
-  dialect: postgres
-  datasource: postgres://dealer_miof_qa2:${POSTGRES_PASSWORD}@dealer-miof-qa2-invest.ds.pg-test.tcsbank.ru:5432/dealer_miof_qa2?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-qa3:
-  dialect: postgres
-  datasource: postgres://dealer_miof_qa3:${POSTGRES_PASSWORD}@dealer-miof-qa3-invest.ds.pg-test.tcsbank.ru:5432/dealer_miof_qa3?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-qa4:
-  dialect: postgres
-  datasource: postgres://dealer_miof_qa4:${POSTGRES_PASSWORD}@dealer-miof-qa4-invest.ds.pg-test.tcsbank.ru:5432/dealer_miof_qa4?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-hlt:
-  dialect: postgres
-  datasource: postgres://dealer_miof_hlt:${POSTGRES_PASSWORD}@dealer-miof-hlt-invest.ds.pg-test.tcsbank.ru:5432/dealer_miof_hlt?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-dev:
-  dialect: postgres
-  datasource: postgres://dealer_miof_dev:${POSTGRES_PASSWORD}@dealer-miof-dev-invest.ds.pg-test.tcsbank.ru:5432/dealer_miof_dev?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
-  table: migrations
-
-prod:
-  dialect: postgres
-  datasource: postgres://dealer_miof:${POSTGRES_PASSWORD}@pgb-dealer-miof.tcsbank.ru:5432/dealer_miof?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
-  dir: migrations/dealer-miof
+  datasource: postgres://user:passwd@localhost:5432/ton_bot?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
+  dir: migrations
   table: migrations

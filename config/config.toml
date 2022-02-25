@@ -1,5 +1,5 @@
 [server]
-address = ":8094"
+address = ":8091"
 
 [TelegramAPI]
 bot_token = "5072079628:AAGKVoqAvcf-MorApAOjijIFzgorcOayTJk"
@@ -14,7 +14,7 @@ required_subscriptions = [ "@theopenart", "@investkingyru" ]
 [database]
 address = "127.0.0.1"
 port = ":5432"
-name = "ton_kenguru_test"
-username = "postgres"
-password = "n19171540"
+name = "ton_bot"
+username = "user"
+password = "passwd"
 scheme = "postgres"

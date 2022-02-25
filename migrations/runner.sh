@@ -2,7 +2,7 @@
 
 set -e
 export CMD=$1
-readonly CONF=migrations/dealer-miof/dbconfig.yml
+readonly CONF=migrations/dbconfig.yml
 
 if [ "$CMD" == "up" ]
     then

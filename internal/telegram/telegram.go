@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/keruch/ton_masks_bot/config"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/keruch/ton_masks_bot/config"
 	repo "github.com/keruch/ton_masks_bot/internal/repository"
 	log "github.com/keruch/ton_masks_bot/pkg/logger"
 )
@@ -33,24 +33,14 @@ type (
 	SubscriptionAction bool
 )
 
-//var (
-//	StartMessage           = config.GetStartMessage() + SubscribeToJoinMessage
-//	SubscribeToJoinMessage = config.GetSubscribeToJoinMessage()
-//	SubscribedToAllMessage = config.GetSubscribedToAllMessage()
-//
-//	BotTag = config.GetTelegramBotTag()
-//)
-
 const (
 	startCommand  = "start"
 	pointsCommand = "points"
 
 	AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
-	SubscribedMessage        = "Вы подписались на канал @%s."
 	UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
 	MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
 
-	FriendSubscribedFormatString      = "Ваш друг @%s подписался на канал @%s."
 	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
 	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы получили 100 баллов!"
 
@@ -58,10 +48,6 @@ const (
 
 	TheOpenArtChannelTag ChannelName = "@theopenart"
 	TheOpenArtChannel    ChannelName = "theopenart"
-	KingyruChannelTag    ChannelName = "@investkingyru"
-	KingyruChannel       ChannelName = "investkingyru"
-	MasksChannelTag      ChannelName = "@tonmasks_ru"
-	MasksChannel         ChannelName = "tonmasks_ru"
 
 	TheOpenArtDBField ChannelDBFiled = "openart"
 	AdditionalDBField ChannelDBFiled = "additional"
@@ -70,17 +56,16 @@ const (
 	unsubscribeAction SubscriptionAction = false
 )
 
-var (
-	ChannelToDBMapping = map[ChannelName]ChannelDBFiled{
-		TheOpenArtChannel:    TheOpenArtDBField,
-		KingyruChannel:       AdditionalDBField,
-		MasksChannel:         AdditionalDBField,
-		TheOpenArtChannelTag: TheOpenArtDBField,
-		KingyruChannelTag:    AdditionalDBField,
-		MasksChannelTag:      AdditionalDBField,
+func ChannelToDBMapping(name ChannelName) ChannelDBFiled {
+	switch name {
+	case TheOpenArtChannelTag:
+		return TheOpenArtDBField
+	case TheOpenArtChannel:
+		return TheOpenArtDBField
+	default:
+		return AdditionalDBField
 	}
-	ToSubscribe = config.GetRequiredChannels()
-)
+}
 
 func NewTgBot(token string, repo repository, logger *log.Logger) (*TgBot, error) {
 	bot, err := tgbotapi.NewBotAPI(token)
@@ -130,7 +115,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 	)
 
 	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
-	msg.ParseMode = tgbotapi.ModeMarkdown
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	switch update.Message.Command() {
 	case startCommand:
@@ -168,7 +153,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 		}
 
 		subToAll := true
-		for _, sub := range ToSubscribe {
+		for _, sub := range config.GetRequiredChannels() {
 			ok, err := tg.isSubscribed(userID, sub)
 			if err != nil {
 				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "isSubscribed").WithField("Channel", sub).Error(err)
@@ -195,7 +180,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 
 			if ID != 0 {
 				msg = tgbotapi.NewMessage(ID, "Something went wrong!")
-				msg.ParseMode = tgbotapi.ModeMarkdown
+				msg.ParseMode = tgbotapi.ModeHTML
 				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
 
 				if _, err = tg.Send(msg); err != nil {
@@ -228,7 +213,7 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 	}
 
 	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
-	msg.ParseMode = tgbotapi.ModeMarkdown
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	switch update.CallbackQuery.Data {
 	case pointsCommand:
@@ -265,14 +250,14 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 			tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "updateSubscription").WithField("Action", "Unsubscribe").Error(err)
 			return
 		}
-		ok, err := tg.isSubscribed(userID, ToSubscribe...)
+		ok, err := tg.isSubscribed(userID, config.GetRequiredChannels()...)
 		if err != nil {
-			tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "isSubscribed").WithField("Channels to sub", ToSubscribe).Error(err)
+			tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Channel", channelName).WithField("Method", "isSubscribed").WithField("Channels to sub", config.GetRequiredChannels()).Error(err)
 			return
 		}
 		if ok {
 			msg := tgbotapi.NewMessage(userID, "Something went wrong!")
-			msg.ParseMode = tgbotapi.ModeMarkdown
+			msg.ParseMode = tgbotapi.ModeHTML
 			msg.Text = config.GetSubscribedToAllMessage()
 
 			if _, err = tg.Send(msg); err != nil {
@@ -288,7 +273,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 
 			if invitedByID != 0 {
 				msg = tgbotapi.NewMessage(invitedByID, "Something went wrong!")
-				msg.ParseMode = tgbotapi.ModeMarkdown
+				msg.ParseMode = tgbotapi.ModeHTML
 				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
 
 				if _, err = tg.Send(msg); err != nil {
@@ -301,7 +286,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 }
 
 func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username string, channelName ChannelName, action SubscriptionAction, points int) error {
-	channel := ChannelToDBMapping[channelName]
+	channel := ChannelToDBMapping(channelName)
 	if err := tg.repo.UpdateSubscription(ctx, string(channel), userID, bool(action)); err != nil {
 		return err
 	}
@@ -318,7 +303,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 
 		if action == unsubscribeAction {
 			msg := tgbotapi.NewMessage(invitedByID, "Something went wrong!")
-			msg.ParseMode = tgbotapi.ModeMarkdown
+			msg.ParseMode = tgbotapi.ModeHTML
 			msg.Text = fmt.Sprintf(FriendUnsubscribedFormatString, username, string(channelName))
 
 			if _, err = tg.Send(msg); err != nil {
@@ -329,7 +314,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 
 	if action == unsubscribeAction {
 		msg := tgbotapi.NewMessage(userID, "Something went wrong!")
-		msg.ParseMode = tgbotapi.ModeMarkdown
+		msg.ParseMode = tgbotapi.ModeHTML
 		msg.Text = fmt.Sprintf(UnsubscribedMessage, string(channelName))
 
 		if _, err = tg.Send(msg); err != nil {
