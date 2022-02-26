@@ -49,8 +49,8 @@ const (
 
 	PersonalLinkFormatString = "Ваша персональная ссылка для приглашения: \n\nhttps://t.me/%s?start=%d"
 
-	TheOpenArtChannelTag ChannelName = "@theopenart"
-	TheOpenArtChannel    ChannelName = "theopenart"
+	TheOpenArtChannelTag ChannelName = "@toned_ape_club"
+	TheOpenArtChannel    ChannelName = "toned_ape_club"
 
 	TheOpenArtDBField ChannelDBFiled = "openart"
 	AdditionalDBField ChannelDBFiled = "additional"
