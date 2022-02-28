@@ -40,14 +40,35 @@ const (
 	ratingCommand = "rating"
 	infoCommand   = "info"
 
-	AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
-	UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
-	MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
+	AlreadyRegisteredMessage = "You are already participating in the giveaway!"
+	UnsubscribedMessage      = "You have unsubscribed from the @%s channel and are no longer in the giveaway. Subscribe to participate again."
+	MissingCommandMessage    = "Wrong action, my friend..."
 
-	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
-	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы получили 100 баллов!"
+	FriendUnsubscribedFormatString    = "Your friend @%s has unsubscribed from the @%s channel and is no longer in the giveaway. We had to take your 50 points 🙁"
+	FriendSubscribedToAllFormatString = "Your friend @%s subscribed to all channels from the conditions and is now participating in the giveaway. And you got 100 points!"
+	PointsFormatString                = "You have %v points"
 
-	PersonalLinkFormatString = "Ваша персональная ссылка для приглашения: \n\nhttps://t.me/%s?start=%d"
+	PersonalLinkFormatString   = "Your personal invitation link:\n\nhttps://t.me/%s?start=%d"
+	YouWereInvitedFormatString = "You were invited by friend @%v!\n\n%s"
+	InviteButton               = "Invite"
+	PointsButton               = "Points"
+	RatingButton               = "Rating"
+	InfoButton                 = "Info"
+
+	//AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
+	//UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
+	//MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
+	//
+	//FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
+	//FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы получили 100 баллов!"
+	//PointsFormatString = "У вас %v баллов"
+	//
+	//PersonalLinkFormatString   = "Ваша персональная ссылка для приглашения:\n\nhttps://t.me/%s?start=%d"
+	//YouWereInvitedFormatString = "Вы были приглашены другом @%v!\n\n%s"
+	//InviteButton               = "Пригласить"
+	//PointsButton               = "Баллы"
+	//RatingButton               = "Рейтинг"
+	//InfoButton                 = "Информация"
 
 	TheOpenArtChannelTag ChannelName = "@toned_ape_club"
 	TheOpenArtChannel    ChannelName = "toned_ape_club"
@@ -133,7 +154,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			if err != nil {
 				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetFieldForID").Error(err)
 			}
-			msg.Text = fmt.Sprintf("Вы были приглашены другом @%v!\n\n%s", invitedUser, config.GetStartMessage()+config.GetSubscribeToJoinMessage())
+			msg.Text = fmt.Sprintf(YouWereInvitedFormatString, invitedUser, config.GetStartMessage()+config.GetSubscribeToJoinMessage())
 		}
 		if err = tg.repo.AddUser(ctx, userID, userName, ID); err != nil {
 			if errors.Is(err, repo.ErrorAlreadyRegistered) {
@@ -226,10 +247,10 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetPointsByID").Error(err)
 		}
 		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
-		msg.Text = fmt.Sprintf("У вас %v баллов", points)
+		msg.Text = fmt.Sprintf(PointsFormatString, points)
 	case ratingCommand:
 		tg.logger.WithField("Command", ratingCommand).WithField("User", userName).WithField("User ID", userID).Info()
-		rating, err := tg.repo.GetRating(ctx, 10)
+		rating, err := tg.repo.GetRating(ctx, 20)
 		if err != nil {
 			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetRating").Error(err)
 		}
@@ -343,10 +364,10 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonSwitch("Пригласить друга", fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), ID)),
-			tgbotapi.NewInlineKeyboardButtonData("Баллы", pointsCommand),
-			tgbotapi.NewInlineKeyboardButtonData("Рейтинг", ratingCommand),
-			tgbotapi.NewInlineKeyboardButtonData("Информация", infoCommand),
+			tgbotapi.NewInlineKeyboardButtonSwitch(InviteButton, fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), ID)),
+			tgbotapi.NewInlineKeyboardButtonData(PointsButton, pointsCommand),
+			tgbotapi.NewInlineKeyboardButtonData(RatingButton, ratingCommand),
+			tgbotapi.NewInlineKeyboardButtonData(InfoButton, infoCommand),
 		),
 	)
 }
@@ -354,11 +375,11 @@ func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {
 func (tg *TgBot) isSubscribed(userID int64, channels ...ChannelName) (bool, error) {
 	result := true
 	for _, channel := range channels {
-		config := tgbotapi.ChatConfigWithUser{
+		cfg := tgbotapi.ChatConfigWithUser{
 			SuperGroupUsername: string(channel),
 			UserID:             userID,
 		}
-		member, err := tg.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: config})
+		member, err := tg.GetChatMember(tgbotapi.GetChatMemberConfig{ChatConfigWithUser: cfg})
 		if err != nil {
 			return false, err
 		}
