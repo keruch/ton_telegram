@@ -144,6 +144,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 	switch update.Message.Command() {
 	case startCommand:
 		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
+		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
 		ID, err := strconv.ParseInt(update.Message.CommandArguments(), 10, 64)
 		if ID == userID {
 			ID = 0
@@ -160,7 +161,6 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			if errors.Is(err, repo.ErrorAlreadyRegistered) {
 				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "AddUser").Info(err)
 				msg.Text = AlreadyRegisteredMessage
-				msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
 				if _, err := tg.Send(msg); err != nil {
 					tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
 					return
