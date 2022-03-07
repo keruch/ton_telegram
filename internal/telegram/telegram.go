@@ -55,6 +55,8 @@ const (
 	RatingButton               = "Rating"
 	InfoButton                 = "Info"
 
+	RatingUsers = 50
+
 	//AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
 	//UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
 	//MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
@@ -70,8 +72,8 @@ const (
 	//RatingButton               = "Рейтинг"
 	//InfoButton                 = "Информация"
 
-	TheOpenArtChannelTag ChannelName = "@toned_ape_club"
-	TheOpenArtChannel    ChannelName = "toned_ape_club"
+	TheOpenArtChannelTag ChannelName = "@theopenart"
+	TheOpenArtChannel    ChannelName = "theopenart"
 
 	TheOpenArtDBField ChannelDBFiled = "openart"
 	AdditionalDBField ChannelDBFiled = "additional"
@@ -250,7 +252,7 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 		msg.Text = fmt.Sprintf(PointsFormatString, points)
 	case ratingCommand:
 		tg.logger.WithField("Command", ratingCommand).WithField("User", userName).WithField("User ID", userID).Info()
-		rating, err := tg.repo.GetRating(ctx, 20)
+		rating, err := tg.repo.GetRating(ctx, RatingUsers)
 		if err != nil {
 			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetRating").Error(err)
 		}
