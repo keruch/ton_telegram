@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/keruch/ton_masks_bot/config"
+	"github.com/keruch/ton_masks_bot/cmd/bot/config"
 	"github.com/keruch/ton_masks_bot/internal/repository"
 	"github.com/keruch/ton_masks_bot/internal/telegram"
 	log "github.com/keruch/ton_masks_bot/pkg/logger"
@@ -18,6 +18,7 @@ func main() {
 	if err != nil {
 		logger.Panic(err)
 	}
+	botCfg := config.GetBotConfig()
 
 	repo, err := repository.NewPostgresSQLPool(config.GetDatabaseURL(), logger)
 	if err != nil {
@@ -25,7 +26,7 @@ func main() {
 	}
 	logger.Info("Setup repository")
 
-	tg, err := telegram.NewTgBot(config.GetTelegramBotToken(), repo, logger)
+	tg, err := telegram.NewTgBot(config.GetTelegramBotToken(), repo, botCfg, logger)
 	if err != nil {
 		logger.Panic(err)
 	}
