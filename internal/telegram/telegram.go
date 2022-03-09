@@ -40,40 +40,40 @@ const (
 	ratingCommand = "rating"
 	infoCommand   = "info"
 
-	AlreadyRegisteredMessage = "You are already participating in the giveaway!"
-	UnsubscribedMessage      = "You have unsubscribed from the @%s channel and are no longer in the giveaway. Subscribe to participate again."
-	MissingCommandMessage    = "Wrong action, my friend..."
-
-	FriendUnsubscribedFormatString    = "Your friend @%s has unsubscribed from the @%s channel and is no longer in the giveaway. We had to take your 50 points 🙁"
-	FriendSubscribedToAllFormatString = "Your friend @%s subscribed to all channels from the conditions and is now participating in the giveaway. And you got 100 points!"
-	PointsFormatString                = "You have %v points"
-
-	PersonalLinkFormatString   = "Your personal invitation link:\n\nhttps://t.me/%s?start=%d"
-	YouWereInvitedFormatString = "You were invited by friend @%v!\n\n%s"
-	InviteButton               = "Invite"
-	PointsButton               = "Points"
-	RatingButton               = "Rating"
-	InfoButton                 = "Info"
+	//AlreadyRegisteredMessage = "You are already participating in the giveaway!"
+	//UnsubscribedMessage      = "You have unsubscribed from the @%s channel and are no longer in the giveaway. Subscribe to participate again."
+	//MissingCommandMessage    = "Wrong action, my friend..."
+	//
+	//FriendUnsubscribedFormatString    = "Your friend @%s has unsubscribed from the @%s channel and is no longer in the giveaway. We had to take your 50 points 🙁"
+	//FriendSubscribedToAllFormatString = "Your friend @%s subscribed to all channels from the conditions and is now participating in the giveaway. And you got 100 points!"
+	//PointsFormatString                = "You have %v points"
+	//
+	//PersonalLinkFormatString   = "Your personal invitation link:\n\nhttps://t.me/%s?start=%d"
+	//YouWereInvitedFormatString = "You were invited by friend @%v!\n\n%s"
+	//InviteButton               = "Invite"
+	//PointsButton               = "Points"
+	//RatingButton               = "Rating"
+	//InfoButton                 = "Info"
 
 	RatingUsers = 50
 
-	//AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
-	//UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
-	//MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
-	//
-	//FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
-	//FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы получили 100 баллов!"
-	//PointsFormatString = "У вас %v баллов"
-	//
-	//PersonalLinkFormatString   = "Ваша персональная ссылка для приглашения:\n\nhttps://t.me/%s?start=%d"
-	//YouWereInvitedFormatString = "Вы были приглашены другом @%v!\n\n%s"
-	//InviteButton               = "Пригласить"
-	//PointsButton               = "Баллы"
-	//RatingButton               = "Рейтинг"
-	//InfoButton                 = "Информация"
+	AlreadyRegisteredMessage = "Вы уже зарегистрированы на участие в конкурсе!"
+	UnsubscribedMessage      = "Вы отписались от канала @%s и больше не участвуете в конкурсе. Подпишитесь, чтобы опять принять участие."
+	MissingCommandMessage    = "Куда-то ты не туда полез дружок..."
 
-	TheOpenArtChannelTag ChannelName = "@theopenart"
-	TheOpenArtChannel    ChannelName = "theopenart"
+	FriendUnsubscribedFormatString    = "Ваш друг @%s отписался от канала @%s и больше не участвует в конкурсе. Пришлось забрать ваши 50 баллов :("
+	FriendSubscribedToAllFormatString = "Ваш друг @%s подписался на все каналы из условий и теперь участвует в конкурсе. А вы получили 100 баллов!"
+	PointsFormatString                = "У вас %v баллов"
+
+	PersonalLinkFormatString   = "Ваша персональная ссылка для приглашения:\n\nhttps://t.me/%s?start=%d"
+	YouWereInvitedFormatString = "Вы были приглашены другом @%v!\n\n%s"
+	InviteButton               = "Пригласить"
+	PointsButton               = "Баллы"
+	RatingButton               = "Рейтинг"
+	InfoButton                 = "Информация"
+
+	TheOpenArtChannelTag ChannelName = "@tonnftplus"
+	TheOpenArtChannel    ChannelName = "tonnftplus"
 
 	TheOpenArtDBField ChannelDBFiled = "openart"
 	AdditionalDBField ChannelDBFiled = "additional"
