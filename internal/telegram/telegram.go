@@ -125,7 +125,7 @@ func (tg *TgBot) Serve(ctx context.Context) {
 
 func (tg *TgBot) processUpdate(ctx context.Context, update tgbotapi.Update) {
 	if update.Message != nil {
-		tg.processMessage(ctx, update)
+		tg.processReplyMessage(ctx, update)
 	} else if update.CallbackQuery != nil {
 		tg.processCallback(ctx, update)
 	} else if update.ChatMember != nil {
@@ -147,7 +147,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 	switch update.Message.Command() {
 	case startCommand:
 		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
-		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 		ID, err := strconv.ParseInt(update.Message.CommandArguments(), 10, 64)
 		if ID == userID {
 			ID = 0
@@ -198,7 +198,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 		}
 
 		if subToAll {
-			msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+			msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 			msg.Text = config.GetSubscribedToAllMessage()
 			if _, err := tg.Send(msg); err != nil {
 				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").WithField("Message", "Subscribed to all message").Error(err)
@@ -227,6 +227,128 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 	}
 }
 
+func (tg *TgBot) processReplyMessage(ctx context.Context, update tgbotapi.Update) {
+	var (
+		chatID   = update.Message.Chat.ID
+		userID   = update.Message.From.ID
+		userName = update.Message.From.UserName
+	)
+
+	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.DisableWebPagePreview = true
+
+	if update.Message.Command() == startCommand {
+		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
+		ID, err := strconv.ParseInt(update.Message.CommandArguments(), 10, 64)
+		if ID == userID {
+			ID = 0
+		}
+		tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Invited By", ID).Info()
+		if err == nil && ID != 0 {
+			invitedUser, err := tg.repo.GetUsername(ctx, ID)
+			if err != nil {
+				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetFieldForID").Error(err)
+			}
+			msg.Text = fmt.Sprintf(YouWereInvitedFormatString, invitedUser, config.GetStartMessage()+config.GetSubscribeToJoinMessage())
+		}
+		if err = tg.repo.AddUser(ctx, userID, userName, ID); err != nil {
+			if errors.Is(err, repo.ErrorAlreadyRegistered) {
+				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "AddUser").Info(err)
+				msg.Text = AlreadyRegisteredMessage
+				if _, err := tg.Send(msg); err != nil {
+					tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
+					return
+				}
+				return
+			}
+			tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "AddUser").Error(err)
+			return
+		}
+		tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Invited By", ID).Info("new user added to db")
+		if _, err := tg.Send(msg); err != nil {
+			tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
+			return
+		}
+
+		subToAll := true
+		for _, sub := range config.GetRequiredChannels() {
+			ok, err := tg.isSubscribed(userID, sub)
+			if err != nil {
+				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "isSubscribed").WithField("Channel", sub).Error(err)
+				return
+			}
+
+			if ok {
+				if err := tg.updateSubscription(ctx, userID, userName, sub, subscribeAction, 50); err != nil {
+					tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Channel", sub).WithField("Method", "updateSubscription").Error(err)
+					return
+				}
+			}
+
+			subToAll = subToAll && ok
+		}
+
+		if subToAll {
+			msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
+			msg.Text = config.GetSubscribedToAllMessage()
+			if _, err := tg.Send(msg); err != nil {
+				tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").WithField("Message", "Subscribed to all message").Error(err)
+				return
+			}
+
+			if ID != 0 {
+				msg = tgbotapi.NewMessage(ID, "Something went wrong!")
+				msg.ParseMode = tgbotapi.ModeHTML
+				msg.DisableWebPagePreview = true
+				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
+
+				if _, err = tg.Send(msg); err != nil {
+					tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").WithField("Message", "Friend subscribed to all message").Error(err)
+					return
+				}
+			}
+		}
+	}
+
+	switch update.Message.Text {
+	case InviteButton:
+		msg.Text = fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), userID)
+	case PointsButton:
+		tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).Info()
+		points, err := tg.repo.GetPointsByID(ctx, userID)
+		if err != nil {
+			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetPointsByID").Error(err)
+		}
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
+		msg.Text = fmt.Sprintf(PointsFormatString, points)
+	case RatingButton:
+		tg.logger.WithField("Command", ratingCommand).WithField("User", userName).WithField("User ID", userID).Info()
+		rating, err := tg.repo.GetRating(ctx, RatingUsers)
+		if err != nil {
+			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetRating").Error(err)
+		}
+		ratingString := createRating(rating)
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
+		msg.Text = ratingString
+	case InfoButton:
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
+		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
+	default:
+		tg.logger.WithField("Command", "missing command").WithField("User", userName).WithField("User ID", userID).Info()
+		msg.Text = MissingCommandMessage
+		if _, err := tg.Send(msg); err != nil {
+			tg.logger.WithField("Method", "Send").Error(err)
+			return
+		}
+	}
+	if _, err := tg.Send(msg); err != nil {
+		tg.logger.WithField("Method", "Send").Error(err)
+		return
+	}
+}
+
 func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 	var (
 		chatID   = update.CallbackQuery.Message.Chat.ID
@@ -251,7 +373,7 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 		if err != nil {
 			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetPointsByID").Error(err)
 		}
-		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 		msg.Text = fmt.Sprintf(PointsFormatString, points)
 	case ratingCommand:
 		tg.logger.WithField("Command", ratingCommand).WithField("User", userName).WithField("User ID", userID).Info()
@@ -260,10 +382,10 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 			tg.logger.WithField("Command", pointsCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "GetRating").Error(err)
 		}
 		ratingString := createRating(rating)
-		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 		msg.Text = ratingString
 	case infoCommand:
-		msg.ReplyMarkup = createInlineKeyboardMarkupWithID(userID)
+		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
 	}
 
@@ -368,6 +490,17 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 	}
 
 	return nil
+}
+
+func createReplyKeyboardMarkupWithID(ID int64) tgbotapi.ReplyKeyboardMarkup {
+	return tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(InviteButton),
+			tgbotapi.NewKeyboardButton(PointsButton),
+			tgbotapi.NewKeyboardButton(RatingButton),
+			tgbotapi.NewKeyboardButton(InfoButton),
+		),
+	)
 }
 
 func createInlineKeyboardMarkupWithID(ID int64) tgbotapi.InlineKeyboardMarkup {

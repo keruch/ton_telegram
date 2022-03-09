@@ -1,5 +1,5 @@
 local:
   dialect: postgres
-  datasource: postgres://user:passwd@localhost:5432/ton_bot?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
+  datasource: postgres://postgres:postgres@localhost:5432/ton_bot?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
   dir: migrations
   table: migrations
