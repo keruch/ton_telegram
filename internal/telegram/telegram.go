@@ -142,6 +142,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 
 	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
 	msg.ParseMode = tgbotapi.ModeHTML
+	msg.DisableWebPagePreview = true
 
 	switch update.Message.Command() {
 	case startCommand:
@@ -207,6 +208,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 			if ID != 0 {
 				msg = tgbotapi.NewMessage(ID, "Something went wrong!")
 				msg.ParseMode = tgbotapi.ModeHTML
+				msg.DisableWebPagePreview = true
 				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
 
 				if _, err = tg.Send(msg); err != nil {
@@ -240,6 +242,7 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 
 	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
 	msg.ParseMode = tgbotapi.ModeHTML
+	msg.DisableWebPagePreview = true
 
 	switch update.CallbackQuery.Data {
 	case pointsCommand:
@@ -296,6 +299,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 		if ok {
 			msg := tgbotapi.NewMessage(userID, "Something went wrong!")
 			msg.ParseMode = tgbotapi.ModeHTML
+			msg.DisableWebPagePreview = true
 			msg.Text = config.GetSubscribedToAllMessage()
 
 			if _, err = tg.Send(msg); err != nil {
@@ -312,6 +316,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 			if invitedByID != 0 {
 				msg = tgbotapi.NewMessage(invitedByID, "Something went wrong!")
 				msg.ParseMode = tgbotapi.ModeHTML
+				msg.DisableWebPagePreview = true
 				msg.Text = fmt.Sprintf(FriendSubscribedToAllFormatString, userName)
 
 				if _, err = tg.Send(msg); err != nil {
@@ -342,6 +347,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 		if action == unsubscribeAction {
 			msg := tgbotapi.NewMessage(invitedByID, "Something went wrong!")
 			msg.ParseMode = tgbotapi.ModeHTML
+			msg.DisableWebPagePreview = true
 			msg.Text = fmt.Sprintf(FriendUnsubscribedFormatString, username, string(channelName))
 
 			if _, err = tg.Send(msg); err != nil {
@@ -353,6 +359,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 	if action == unsubscribeAction {
 		msg := tgbotapi.NewMessage(userID, "Something went wrong!")
 		msg.ParseMode = tgbotapi.ModeHTML
+		msg.DisableWebPagePreview = true
 		msg.Text = fmt.Sprintf(UnsubscribedMessage, string(channelName))
 
 		if _, err = tg.Send(msg); err != nil {
