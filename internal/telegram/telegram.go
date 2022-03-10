@@ -35,10 +35,11 @@ type (
 )
 
 const (
-	startCommand  = "start"
-	pointsCommand = "points"
-	ratingCommand = "rating"
-	infoCommand   = "info"
+	startCommand      = "start"
+	startCommandSlash = "/start"
+	pointsCommand     = "points"
+	ratingCommand     = "rating"
+	infoCommand       = "info"
 
 	//AlreadyRegisteredMessage = "You are already participating in the giveaway!"
 	//UnsubscribedMessage      = "You have unsubscribed from the @%s channel and are no longer in the giveaway. Subscribe to participate again."
@@ -238,7 +239,8 @@ func (tg *TgBot) processReplyMessage(ctx context.Context, update tgbotapi.Update
 	msg.ParseMode = tgbotapi.ModeHTML
 	msg.DisableWebPagePreview = true
 
-	if update.Message.Command() == startCommand {
+	switch update.Message.Text {
+	case startCommandSlash:
 		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
 		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 		ID, err := strconv.ParseInt(update.Message.CommandArguments(), 10, 64)
@@ -310,9 +312,6 @@ func (tg *TgBot) processReplyMessage(ctx context.Context, update tgbotapi.Update
 				}
 			}
 		}
-	}
-
-	switch update.Message.Text {
 	case InviteButton:
 		msg.Text = fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), userID)
 	case PointsButton:
