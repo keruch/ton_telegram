@@ -237,8 +237,7 @@ func (tg *TgBot) processReplyMessage(ctx context.Context, update tgbotapi.Update
 	msg.ParseMode = tgbotapi.ModeHTML
 	msg.DisableWebPagePreview = true
 
-	switch update.Message.Text {
-	case startCommandSlash:
+	if update.Message.Command() == startCommand {
 		msg.Text = config.GetStartMessage() + config.GetSubscribeToJoinMessage()
 		msg.ReplyMarkup = createReplyKeyboardMarkupWithID(userID)
 		ID, err := strconv.ParseInt(update.Message.CommandArguments(), 10, 64)
@@ -309,7 +308,18 @@ func (tg *TgBot) processReplyMessage(ctx context.Context, update tgbotapi.Update
 					return
 				}
 			}
+
+			return
 		}
+
+		if _, err := tg.Send(msg); err != nil {
+			tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").WithField("Message", "Subscribed to all message").Error(err)
+			return
+		}
+		return
+	}
+
+	switch update.Message.Text {
 	case InviteButton:
 		msg.Text = fmt.Sprintf(PersonalLinkFormatString, config.GetTelegramBotTag(), userID)
 	case PointsButton:
