@@ -127,8 +127,6 @@ func (tg *TgBot) Serve(ctx context.Context) {
 func (tg *TgBot) processUpdate(ctx context.Context, update tgbotapi.Update) {
 	if update.Message != nil {
 		tg.processReplyMessage(ctx, update)
-	} else if update.CallbackQuery != nil {
-		tg.processCallback(ctx, update)
 	} else if update.ChatMember != nil {
 		tg.processChatMember(ctx, update)
 	}
@@ -337,10 +335,6 @@ func (tg *TgBot) processReplyMessage(ctx context.Context, update tgbotapi.Update
 	default:
 		tg.logger.WithField("Command", "missing command").WithField("User", userName).WithField("User ID", userID).Info()
 		msg.Text = MissingCommandMessage
-		if _, err := tg.Send(msg); err != nil {
-			tg.logger.WithField("Method", "Send").Error(err)
-			return
-		}
 	}
 	if _, err := tg.Send(msg); err != nil {
 		tg.logger.WithField("Method", "Send").Error(err)
