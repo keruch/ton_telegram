@@ -1,0 +1,37 @@
+[server]
+address = ":8091"
+
+[bot]
+token = "5172772606:AAFqj0gcUXaOHySPw14pG3BbDMTuv9isowU"
+name = "artversebot"
+rating_limit = 50
+required_subscriptions = [ "@theopenart", "@theopenverse" ]
+
+[bot.messages]
+start = "<a href=\"https://t.me/theopenart\">The Open Art</a> совместно с <a href=\"https://t.me/theopenverse\">TON VERSE</a> проводит розыгрыш 3 NFT от проекта <a href=\"https://t.me/theopenverse\">TON VERSE</a>. \nПринять участие очень просто - выполняйте задания и получайте баллы, которые увеличивают шансы выиграть NFT.\n\n💎 Больше информации в официальном сообществе <a href=\"https://t.me/theopenart\">The Open Art</a> и в официальном сообществе <a href=\"https://t.me/theopenverse\">TON VERSE</a>."
+subscribe_to_join = "Для участия подпишитесь на каналы <a href=\"https://t.me/theopenart\">The Open Art</a> и <a href=\"https://t.me/theopenverse\">TON VERSE</a>. Важно быть подписанным до окончания конкурса."
+subscribed_to_all = "✨ Поздравляем! Вы участвуете в розыгрыше NFT.\nПобедитель будет объявлен 14 февраля 2022 года в 16:00. Шанс выиграть NFT напрямую зависит от баллов: чем их больше, тем выше вероятность получить NFT. Вы можете приглашать друзей: за каждую его подписку вы получите по 50 баллов (всего 100), но следите, чтобы они не отписывались, а то баллы за них учтены не будут!"
+already_registered = "You are already participating in the giveaway!"
+missing_command = "Wrong action, my friend..."
+
+[bot.format_strings]
+unsubscribed = "You have unsubscribed from the @%s channel and are no longer in the giveaway. Subscribe to participate again."
+friend_unsubscribed = "Your friend @%s has unsubscribed from the @%s channel and is no longer in the giveaway. We had to take your 50 points 🙁"
+friend_subscribed_to_all = "Your friend @%s subscribed to all channels from the conditions and is now participating in the giveaway. And you got 100 points!"
+points = "You have %v points"
+personal_link = "Your personal invitation link:\n\nhttps://t.me/%s?start=%d"
+you_were_invited = "You were invited by friend @%v!\n\n%s"
+
+[bot.buttons]
+invite = "Invite"
+points = "Points"
+rating = "Rating"
+info = "Info"
+
+[database]
+address = "127.0.0.1"
+port = ":5432"
+name = "ton_bot"
+username = "user"
+password = "passwd"
+scheme = "postgres"
