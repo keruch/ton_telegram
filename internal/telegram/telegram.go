@@ -112,6 +112,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 
 	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
 	msg.ParseMode = tgbotapi.ModeHTML
+	msg.DisableWebPagePreview = true
 
 	switch update.Message.Command() {
 	case startCommand:
@@ -178,6 +179,7 @@ func (tg *TgBot) processMessage(ctx context.Context, update tgbotapi.Update) {
 				msg = tgbotapi.NewMessage(ID, "Something went wrong!")
 				msg.ParseMode = tgbotapi.ModeHTML
 				msg.Text = fmt.Sprintf(tg.cfg.FormatStrings.FriendSubscribedToAll, userName)
+				msg.DisableWebPagePreview = true
 
 				if _, err = tg.Send(msg); err != nil {
 					tg.logger.WithField("Command", startCommand).WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").WithField("Message", "Friend subscribed to all message").Error(err)
@@ -210,6 +212,7 @@ func (tg *TgBot) processCallback(ctx context.Context, update tgbotapi.Update) {
 
 	msg := tgbotapi.NewMessage(chatID, "Something went wrong!")
 	msg.ParseMode = tgbotapi.ModeHTML
+	msg.DisableWebPagePreview = true
 
 	switch update.CallbackQuery.Data {
 	case pointsCommand:
@@ -267,6 +270,8 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 			msg := tgbotapi.NewMessage(userID, "Something went wrong!")
 			msg.ParseMode = tgbotapi.ModeHTML
 			msg.Text = tg.cfg.Messages.SubscribedToAll
+			msg.DisableWebPagePreview = true
+			msg.Text = config.GetSubscribedToAllMessage()
 
 			if _, err = tg.Send(msg); err != nil {
 				tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
@@ -283,6 +288,7 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 				msg = tgbotapi.NewMessage(invitedByID, "Something went wrong!")
 				msg.ParseMode = tgbotapi.ModeHTML
 				msg.Text = fmt.Sprintf(tg.cfg.FormatStrings.FriendSubscribedToAll, userName)
+				msg.DisableWebPagePreview = true
 
 				if _, err = tg.Send(msg); err != nil {
 					tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
@@ -313,6 +319,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 			msg := tgbotapi.NewMessage(invitedByID, "Something went wrong!")
 			msg.ParseMode = tgbotapi.ModeHTML
 			msg.Text = fmt.Sprintf(tg.cfg.FormatStrings.FriendUnsubscribed, username, string(channelName))
+			msg.DisableWebPagePreview = true
 
 			if _, err = tg.Send(msg); err != nil {
 				return err
@@ -324,6 +331,7 @@ func (tg *TgBot) updateSubscription(ctx context.Context, userID int64, username 
 		msg := tgbotapi.NewMessage(userID, "Something went wrong!")
 		msg.ParseMode = tgbotapi.ModeHTML
 		msg.Text = fmt.Sprintf(tg.cfg.FormatStrings.Unsubscribed, string(channelName))
+		msg.DisableWebPagePreview = true
 
 		if _, err = tg.Send(msg); err != nil {
 			return err
