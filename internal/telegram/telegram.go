@@ -271,7 +271,6 @@ func (tg *TgBot) processChatMember(ctx context.Context, update tgbotapi.Update) 
 			msg.ParseMode = tgbotapi.ModeHTML
 			msg.Text = tg.cfg.Messages.SubscribedToAll
 			msg.DisableWebPagePreview = true
-			msg.Text = config.GetSubscribedToAllMessage()
 
 			if _, err = tg.Send(msg); err != nil {
 				tg.logger.WithField("When", "Update status to member").WithField("User", userName).WithField("User ID", userID).WithField("Method", "Send").Error(err)
