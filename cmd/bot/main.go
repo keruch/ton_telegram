@@ -26,7 +26,7 @@ func main() {
 	}
 	logger.Info("Setup repository")
 
-	tg, err := telegram.NewTgBot(config.GetTelegramBotToken(), repo, botCfg, logger)
+	tg, err := telegram.NewTgBot(config.GetTelegramBotToken(), repo, &botCfg, logger)
 	if err != nil {
 		logger.Panic(err)
 	}

@@ -11,7 +11,7 @@ func SetupConfig() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config")
+	viper.AddConfigPath("./cmd/bot/config")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -62,11 +62,11 @@ func GetBotConfig() config.BotConfig {
 }
 
 func GetTelegramBotToken() string {
-	return viper.GetString("TelegramAPI.bot_token")
+	return viper.GetString("bot.token")
 }
 
 func GetTelegramBotTag() string {
-	return viper.GetString("TelegramAPI.bot_name")
+	return viper.GetString("bot.name")
 }
 
 func GetRequiredChannels() []string {
