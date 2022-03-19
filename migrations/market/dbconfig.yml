@@ -1,0 +1,5 @@
+local:
+  dialect: postgres
+  datasource: postgres://user:passwd@localhost:5432/ton_verse_market?sslmode=disable&TimeZone=UTC&application_name=sql-migrate
+  dir: migrations/market
+  table: migrations
