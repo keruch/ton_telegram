@@ -10,6 +10,7 @@ import (
 	log "github.com/keruch/ton_masks_bot/pkg/logger"
 	"io/ioutil"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -24,6 +25,9 @@ type Market struct {
 	repo   marketRepo
 	cfg    *config.MarketConfig
 	logger *log.Logger
+
+	mu    *sync.RWMutex
+	users map[string][]int
 }
 
 func NewMarket(token string, repo marketRepo, cfg *config.MarketConfig, logger *log.Logger) (*Market, error) {
@@ -37,6 +41,9 @@ func NewMarket(token string, repo marketRepo, cfg *config.MarketConfig, logger *
 		repo:   repo,
 		cfg:    cfg,
 		logger: logger,
+
+		mu:    new(sync.RWMutex),
+		users: make(map[string][]int, 0),
 	}, nil
 }
 
@@ -90,12 +97,19 @@ func (m *Market) processMessage(ctx context.Context, update tgbotapi.Update) err
 
 	case m.cfg.Buttons.Verse:
 		m.logger.WithField("username", userName).Infof("user typed verse")
-		ids, err := m.repo.GetIDs(ctx, userID)
-		if err != nil {
-			m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
-			return m.sendNewMessage(chatID, "")
+
+		ids, ok := m.users[userName]
+		if !ok {
+			var err error
+			ids, err = m.repo.GetIDs(ctx, userID)
+			if err != nil {
+				m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
+				return m.sendNewMessage(chatID, "")
+			}
+			m.users[userName] = ids
 		}
-		err = m.sendNewMessage(chatID, "Opening your \U0001FA90Verse...")
+
+		err := m.sendNewMessage(chatID, "Opening your \U0001FA90Verse...")
 		if err != nil {
 			return err
 		}
@@ -104,8 +118,13 @@ func (m *Market) processMessage(ctx context.Context, update tgbotapi.Update) err
 			return err
 		}
 		time.Sleep(2 * time.Second)
-		return m.sendPlanetsMessage(chatID, lock.MessageID,
-			"Welcome to your \U0001FA90Verse!", createInlineKeyboardForPlanets(ids))
+
+		if len(ids) == 0 {
+			return m.sendNewMessage(chatID, "Your \U0001FA90Verse is empty now. To purchase see @theopenverse")
+		} else {
+			return m.sendPlanetsMessage(chatID, lock.MessageID,
+				"Welcome to your \U0001FA90Verse!", createInlineKeyboardForPlanets(ids))
+		}
 
 	case m.cfg.Buttons.Rating:
 		m.logger.WithField("username", userName).Infof("user typed rating")
@@ -149,10 +168,14 @@ func (m *Market) processCallback(ctx context.Context, update tgbotapi.Update) er
 		Bytes: photoBytes,
 	}
 
-	ids, err := m.repo.GetIDs(ctx, userID)
-	if err != nil {
-		m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
-		return m.sendNewMessage(chatID, "")
+	ids, ok := m.users[userName]
+	if !ok {
+		ids, err = m.repo.GetIDs(ctx, userID)
+		if err != nil {
+			m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
+			return m.sendNewMessage(chatID, "")
+		}
+		m.users[userName] = ids
 	}
 
 	photo := tgbotapi.NewPhoto(chatID, photoFileBytes)
