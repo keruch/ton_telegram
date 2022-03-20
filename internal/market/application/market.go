@@ -120,7 +120,9 @@ func (m *Market) processMessage(ctx context.Context, update tgbotapi.Update) err
 		time.Sleep(2 * time.Second)
 
 		if len(ids) == 0 {
-			return m.sendNewMessage(chatID, "Your \U0001FA90Verse is empty now. To purchase see @theopenverse")
+			return m.sendPlanetsMessage(chatID, lock.MessageID,
+				"Your \U0001FA90Verse is empty now. For details see TON VERSE\U0001FA90.",
+				createInlineKeyboardForTONVERSE())
 		} else {
 			return m.sendPlanetsMessage(chatID, lock.MessageID,
 				"Welcome to your \U0001FA90Verse!", createInlineKeyboardForPlanets(ids))

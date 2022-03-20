@@ -40,6 +40,14 @@ func createInlineKeyboardForPlanets(ids []int) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(rows...)
 }
 
+func createInlineKeyboardForTONVERSE() tgbotapi.InlineKeyboardMarkup {
+	return tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonURL("Start exploring my \U0001FA90Verse", "https://t.me/theopenverse"),
+		),
+	)
+}
+
 func createInlineKeyboardMarkupWithID() tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(

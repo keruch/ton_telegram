@@ -7,8 +7,8 @@ name = "artversebot"
 rating_limit = 50
 
 [bot.messages]
-start = "Welcome to <a href=\"https://t.me/theopenverse\">TON VERSE</a> 🪐"
-info = "You are exploring universe of <a href=\"https://t.me/theopenverse\">TON VERSE</a> 🪐"
+start = "Welcome to <a href=\"https://t.me/theopenverse\">TON VERSE</a>🪐"
+info = "You are exploring universe of <a href=\"https://t.me/theopenverse\">TON VERSE</a>🪐"
 missing_command = "Verse does not forgive mistakes."
 error = "Something went wrong! Please contact @kkowinskii!"
 
@@ -16,7 +16,7 @@ error = "Something went wrong! Please contact @kkowinskii!"
 nft = "You have %v nft"
 
 [bot.buttons]
-verse = "🪐My Verse"
+verse = "My 🪐Verse"
 rating = "Rating"
 info = "Info"
 
