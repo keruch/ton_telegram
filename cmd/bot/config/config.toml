@@ -59,7 +59,7 @@ info = "Инфо"
 [database]
 address = "127.0.0.1"
 port = ":5432"
-name = "cells_bot"
+name = "ton_bot"
 username = "user"
 password = "passwd"
 scheme = "postgres"

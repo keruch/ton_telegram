@@ -50,5 +50,4 @@ env-stop:
 setup-env: install-migrator update migrate-up env-start
 
 $(SERVICES_RUN_TARGETS_LIST): run-%:
-	./docker/env.sh start
 	go run ./cmd/$*
