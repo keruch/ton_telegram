@@ -29,7 +29,7 @@ func loadCsv(filename string) (domain.RarityTable, error) {
 	}
 
 	reader := csv.NewReader(file)
-	reader.FieldsPerRecord = 3
+	reader.FieldsPerRecord = 2
 	reader.Comment = '#'
 
 	rarityTable := make(domain.RarityTable)
@@ -50,7 +50,7 @@ func loadCsv(filename string) (domain.RarityTable, error) {
 		if e != nil {
 			return domain.RarityTable{}, e
 		}
-		rarity, e := strconv.Atoi(record[2])
+		rarity, e := strconv.Atoi(record[1])
 		if e != nil {
 			return domain.RarityTable{}, e
 		}
