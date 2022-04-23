@@ -1,0 +1,29 @@
+[server]
+address = ":8091"
+
+[bot]
+token = "5172772606:AAFqj0gcUXaOHySPw14pG3BbDMTuv9isowU"
+name = "artversebot"
+rating_limit = 50
+
+[bot.messages]
+start = "Welcome to <a href=\"https://t.me/theopenverse\">TON VERSE</a>🪐"
+info = "You are exploring universe of <a href=\"https://t.me/theopenverse\">TON VERSE</a>🪐"
+missing_command = "Verse does not forgive mistakes."
+error = "Something went wrong! Please contact @kkowinskii!"
+
+[bot.format_strings]
+nft = "You have %v nft"
+
+[bot.buttons]
+verse = "My 🪐Verse"
+rating = "Rating"
+info = "Info"
+
+[database]
+address = "127.0.0.1"
+port = ":5432"
+name = "ton_verse_market"
+username = "user"
+password = "passwd"
+scheme = "postgres"

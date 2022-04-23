@@ -14,20 +14,29 @@ update: mod vendor
 install-migrator:
 	go get -v github.com/rubenv/sql-migrate/...
 
-migrate-status:
-	ENV=$(ENV) ./migrations/runner.sh status
+migrate-bot-status:
+	ENV=$(ENV) ./migrations/bot/runner.sh status
 
-migrate-up:
-	ENV=$(ENV) ./migrations/runner.sh up
+migrate-bot-up:
+	ENV=$(ENV) ./migrations/bot/runner.sh up
 
-migrate-down:
-	ENV=$(ENV) ./migrations/runner.sh down
+migrate-bot-down:
+	ENV=$(ENV) ./migrations/bot/runner.sh down
 
-migrate-reports-down:
-	ENV=$(ENV) ./migrations/dealer-reports/runner.sh down
+migrate-bot-up-down-up:
+	ENV=$(ENV) ./migrations/bot/runner.sh up-down-up
 
-migrate-up-down-up:
-	ENV=$(ENV) ./migrations/runner.sh up-down-up
+migrate-market-status:
+	ENV=$(ENV) ./migrations/market/runner.sh status
+
+migrate-market-up:
+	ENV=$(ENV) ./migrations/market/runner.sh up
+
+migrate-market-down:
+	ENV=$(ENV) ./migrations/market/runner.sh down
+
+migrate-market-up-down-up:
+	ENV=$(ENV) ./migrations/market/runner.sh up-down-up
 
 env-start:
 	./docker/env.sh start

@@ -2,7 +2,7 @@
 
 set -e
 export CMD=$1
-readonly CONF=migrations/dbconfig.yml
+readonly CONF=migrations/bot/dbconfig.yml
 
 if [ "$CMD" == "up" ]
     then
