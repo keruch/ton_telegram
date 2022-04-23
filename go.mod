@@ -1,4 +1,4 @@
-module github.com/keruch/ton_masks_bot
+module github.com/keruch/ton_telegram
 
 go 1.16
 

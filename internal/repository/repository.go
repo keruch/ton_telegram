@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-	log "github.com/keruch/ton_masks_bot/pkg/logger"
+	log "github.com/keruch/ton_telegram/pkg/logger"
 )
 
 var ErrorAlreadyRegistered = errors.New("user already registered")

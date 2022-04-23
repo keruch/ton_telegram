@@ -2,11 +2,11 @@ package repository
 
 import (
 	"context"
-	"github.com/keruch/ton_masks_bot/internal/market/domain"
+	"github.com/keruch/ton_telegram/internal/market/domain"
 	"github.com/lib/pq"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-	log "github.com/keruch/ton_masks_bot/pkg/logger"
+	log "github.com/keruch/ton_telegram/pkg/logger"
 )
 
 type PostgresSQLPool struct {

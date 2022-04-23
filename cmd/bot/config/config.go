@@ -3,7 +3,7 @@ package config
 import (
 	"net/url"
 
-	"github.com/keruch/ton_masks_bot/internal/telegram/config"
+	"github.com/keruch/ton_telegram/internal/telegram/config"
 	"github.com/spf13/viper"
 )
 

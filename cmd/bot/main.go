@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/keruch/ton_masks_bot/cmd/bot/config"
-	"github.com/keruch/ton_masks_bot/internal/repository"
-	"github.com/keruch/ton_masks_bot/internal/telegram"
-	log "github.com/keruch/ton_masks_bot/pkg/logger"
+	"github.com/keruch/ton_telegram/cmd/bot/config"
+	"github.com/keruch/ton_telegram/internal/repository"
+	"github.com/keruch/ton_telegram/internal/telegram"
+	log "github.com/keruch/ton_telegram/pkg/logger"
 )
 
 func main() {

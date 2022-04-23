@@ -7,9 +7,9 @@ import (
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	repo "github.com/keruch/ton_masks_bot/internal/repository"
-	"github.com/keruch/ton_masks_bot/internal/telegram/config"
-	log "github.com/keruch/ton_masks_bot/pkg/logger"
+	repo "github.com/keruch/ton_telegram/internal/repository"
+	"github.com/keruch/ton_telegram/internal/telegram/config"
+	log "github.com/keruch/ton_telegram/pkg/logger"
 )
 
 type repository interface {

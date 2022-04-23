@@ -1,8 +1,8 @@
 package table
 
-import (
+import git (
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/keruch/ton_masks_bot/internal/market/domain"
+	"github.com/keruch/ton_telegram/internal/market/domain"
 )
 
 func CreateRatingTable(rating []domain.RatingRow) string {
