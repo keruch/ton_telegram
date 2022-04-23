@@ -164,7 +164,7 @@ func (m *Market) processCallback(ctx context.Context, update tgbotapi.Update) er
 	}
 
 	pwd, _ := os.Getwd()
-	photoBytes, err := ioutil.ReadFile(fmt.Sprintf("%s/cmd/market/pics/%s.jpeg", pwd, picID))
+	photoBytes, err := ioutil.ReadFile(fmt.Sprintf("%s/cmd/market/pics/%s.png", pwd, picID))
 	if err != nil {
 		return err
 	}
