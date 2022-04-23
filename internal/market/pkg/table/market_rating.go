@@ -1,6 +1,6 @@
 package table
 
-import git (
+import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/keruch/ton_telegram/internal/market/domain"
 )

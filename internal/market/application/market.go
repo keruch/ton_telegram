@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/keruch/ton_telegram/internal/market/config"
@@ -9,7 +10,9 @@ import (
 	"github.com/keruch/ton_telegram/internal/market/pkg/table"
 	log "github.com/keruch/ton_telegram/pkg/logger"
 	"io/ioutil"
+	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -180,10 +183,33 @@ func (m *Market) processCallback(ctx context.Context, update tgbotapi.Update) er
 		m.users[userName] = ids
 	}
 
+	resp, err := http.Get("http://localhost:8200/rarity/" + picID)
+	if err != nil {
+		m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
+		return m.sendNewMessage(chatID, "")
+	}
+
+	var out struct {
+		Payload int `json:"payload"`
+	}
+
+	rawResp, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
+		return m.sendNewMessage(chatID, "")
+	}
+	defer resp.Body.Close()
+
+	err = json.Unmarshal(rawResp, &out)
+	if err != nil {
+		m.logger.WithField("username", userName).WithError(err).Error("failed to get nft ids")
+		return m.sendNewMessage(chatID, "")
+	}
+
 	photo := tgbotapi.NewPhoto(chatID, photoFileBytes)
 	photo.ReplyMarkup = createInlineKeyboardForPlanets(ids)
 	photo.ParseMode = tgbotapi.ModeHTML
-	photo.Caption = wrapMessage("Enjoy your planet with ID " + picID)
+	photo.Caption = wrapMessage("Enjoy your planet with ID " + picID + "\nRarity points: " + strconv.Itoa(out.Payload))
 	_, err = m.Send(photo)
 
 	return err
